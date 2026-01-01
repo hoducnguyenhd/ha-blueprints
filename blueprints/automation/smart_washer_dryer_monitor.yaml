@@ -1,0 +1,157 @@
+blueprint:
+  name: Smart Washer / Dryer Monitor (Per-Device)
+  description: >
+    Giám sát máy giặt / máy sấy / máy rửa bát.
+    Không dùng input_boolean global.
+    Mỗi automation hoạt động độc lập, không xung đột.
+  domain: automation
+
+  input:
+    power_sensor:
+      name: Cảm biến công suất (W)
+      selector:
+        entity:
+          domain: sensor
+
+    device_name:
+      name: Tên thiết bị
+      default: Máy giặt
+      selector:
+        text:
+
+    notify_service:
+      name: Notify service
+      default: notify.notify
+      selector:
+        text:
+
+    running_power:
+      name: Ngưỡng xác định máy đang chạy (W)
+      default: 10
+      selector:
+        number:
+          min: 5
+          max: 100
+          step: 1
+
+    finish_power:
+      name: Ngưỡng công suất nghỉ (W)
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 20
+          step: 1
+
+    finish_time:
+      name: Thời gian công suất thấp để xác nhận dừng (phút)
+      default: 3
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+
+    min_run_time:
+      name: Thời gian chạy tối thiểu (phút)
+      default: 60
+      selector:
+        number:
+          min: 10
+          max: 240
+          step: 5
+
+    overload_power:
+      name: Ngưỡng quá tải / kẹt (W)
+      default: 700
+      selector:
+        number:
+          min: 300
+          max: 3000
+          step: 50
+
+    overload_time:
+      name: Thời gian quá tải (phút)
+      default: 2
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+
+mode: restart
+
+trigger:
+  - platform: numeric_state
+    entity_id: !input power_sensor
+    above: !input running_power
+    for: "00:01:00"
+
+action:
+  - variables:
+      name: !input device_name
+      start_time: "{{ now() }}"
+
+  # ===== CHỜ KẾT THÚC / LỖI / QUÁ TẢI =====
+  - wait_for_trigger:
+      # === KẾT THÚC ===
+      - platform: numeric_state
+        entity_id: !input power_sensor
+        below: !input finish_power
+        for:
+          minutes: !input finish_time
+
+      # === QUÁ TẢI ===
+      - platform: numeric_state
+        entity_id: !input power_sensor
+        above: !input overload_power
+        for:
+          minutes: !input overload_time
+    timeout:
+      hours: 6
+
+  - variables:
+      run_minutes: >
+        {{ (as_timestamp(now()) - as_timestamp(start_time)) / 60 }}
+
+  # ===== PHÂN LOẠI KẾT QUẢ =====
+  - choose:
+
+      # === QUÁ TẢI / KẸT ===
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger is not none and
+                 trigger.platform == 'numeric_state' and
+                 trigger.above is defined }}
+        sequence:
+          - service: !input notify_service
+            data:
+              title: "⚠️ {{ name }}"
+              message: >
+                {{ name }} có dấu hiệu quá tải hoặc kẹt.
+                Công suất cao bất thường.
+
+      # === GIẶT XONG BÌNH THƯỜNG ===
+      - conditions:
+          - condition: template
+            value_template: "{{ run_minutes >= ( !input min_run_time ) }}"
+        sequence:
+          - service: !input notify_service
+            data:
+              title: "🧺 {{ name }}"
+              message: >
+                {{ name }} đã chạy xong.
+                Thời gian: {{ run_minutes | round(0) }} phút.
+
+      # === DỪNG SỚM / LỖI ===
+      - conditions:
+          - condition: template
+            value_template: "{{ run_minutes < ( !input min_run_time ) }}"
+        sequence:
+          - service: !input notify_service
+            data:
+              title: "❌ {{ name }}"
+              message: >
+                {{ name }} dừng bất thường sau {{ run_minutes | round(0) }} phút.
+                Có thể lỗi hoặc mất nước.
