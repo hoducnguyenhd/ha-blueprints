@@ -1,9 +1,9 @@
 blueprint:
-  name: Smart Washer / Dryer Monitor (Per-Device)
+  name: Smart Washer / Dryer Monitor
   description: >
     Giám sát máy giặt / máy sấy / máy rửa bát.
-    Không dùng input_boolean global.
-    Mỗi automation hoạt động độc lập, không xung đột.
+    Không dùng input_boolean.
+    Không báo sai khi standby.
   domain: automation
 
   input:
@@ -90,41 +90,31 @@ trigger:
 action:
   - variables:
       name: !input device_name
+      power_entity: !input power_sensor
       start_time: "{{ now() }}"
       min_time: !input min_run_time
 
-  # ===== CHỜ KẾT THÚC / LỖI / QUÁ TẢI =====
   - wait_for_trigger:
-      # === KẾT THÚC ===
       - platform: numeric_state
         entity_id: !input power_sensor
         below: !input finish_power
         for:
           minutes: !input finish_time
-
-      # === QUÁ TẢI ===
-      - platform: numeric_state
-        entity_id: !input power_sensor
-        above: !input overload_power
-        for:
-          minutes: !input overload_time
     timeout:
       hours: 6
 
   - variables:
       run_minutes: >
         {{ (as_timestamp(now()) - as_timestamp(start_time)) / 60 }}
+      current_power: >
+        {{ states(power_entity) | float(0) }}
 
-  # ===== PHÂN LOẠI KẾT QUẢ =====
   - choose:
 
       # === QUÁ TẢI / KẸT ===
       - conditions:
           - condition: template
-            value_template: >
-              {{ trigger is not none and
-                 trigger.platform == 'numeric_state' and
-                 trigger.above is defined }}
+            value_template: "{{ current_power >= (states(power_entity) | float(0)) and current_power >=  !input overload_power }}"
         sequence:
           - service: !input notify_service
             data:
@@ -133,7 +123,7 @@ action:
                 {{ name }} có dấu hiệu quá tải hoặc kẹt.
                 Công suất cao bất thường.
 
-      # === GIẶT XONG BÌNH THƯỜNG ===
+      # === GIẶT XONG ===
       - conditions:
           - condition: template
             value_template: "{{ run_minutes >= min_time }}"
