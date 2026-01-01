@@ -91,6 +91,7 @@ action:
   - variables:
       name: !input device_name
       start_time: "{{ now() }}"
+      min_time: !input min_run_time
 
   # ===== CHỜ KẾT THÚC / LỖI / QUÁ TẢI =====
   - wait_for_trigger:
@@ -135,7 +136,7 @@ action:
       # === GIẶT XONG BÌNH THƯỜNG ===
       - conditions:
           - condition: template
-            value_template: "{{ run_minutes >= ( !input min_run_time ) }}"
+            value_template: "{{ run_minutes >= min_time }}"
         sequence:
           - service: !input notify_service
             data:
@@ -147,7 +148,7 @@ action:
       # === DỪNG SỚM / LỖI ===
       - conditions:
           - condition: template
-            value_template: "{{ run_minutes < ( !input min_run_time ) }}"
+            value_template: "{{ run_minutes < min_time }}"
         sequence:
           - service: !input notify_service
             data:
