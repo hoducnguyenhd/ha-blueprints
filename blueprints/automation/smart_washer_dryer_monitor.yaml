@@ -1,8 +1,7 @@
 blueprint:
-  name: Smart Washer / Dryer Monitor (Per-device SAFE)
+  name: Smart Washer / Dryer Monitor
   description: >
     Phát hiện giặt/sấy xong, dừng sớm (lỗi), quá tải.
-    Không dùng input_boolean, không báo nhầm standby.
   domain: automation
 
   input:
