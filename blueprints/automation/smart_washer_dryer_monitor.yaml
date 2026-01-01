@@ -1,9 +1,8 @@
 blueprint:
-  name: Smart Washer / Dryer Monitor
+  name: Smart Washer / Dryer Monitor (Per-device SAFE)
   description: >
-    Giám sát máy giặt / máy sấy / máy rửa bát.
-    Không dùng input_boolean.
-    Không báo sai khi standby.
+    Phát hiện giặt/sấy xong, dừng sớm (lỗi), quá tải.
+    Không dùng input_boolean, không báo nhầm standby.
   domain: automation
 
   input:
@@ -26,7 +25,7 @@ blueprint:
         text:
 
     running_power:
-      name: Ngưỡng xác định máy đang chạy (W)
+      name: Ngưỡng xác định đang chạy (W)
       default: 10
       selector:
         number:
@@ -44,7 +43,7 @@ blueprint:
           step: 1
 
     finish_time:
-      name: Thời gian công suất thấp để xác nhận dừng (phút)
+      name: Thời gian công suất thấp xác nhận dừng (phút)
       default: 3
       selector:
         number:
@@ -63,7 +62,7 @@ blueprint:
 
     overload_power:
       name: Ngưỡng quá tải / kẹt (W)
-      default: 700
+      default: 800
       selector:
         number:
           min: 300
@@ -82,10 +81,20 @@ blueprint:
 mode: restart
 
 trigger:
+  # BẮT ĐẦU CHẠY
   - platform: numeric_state
     entity_id: !input power_sensor
     above: !input running_power
     for: "00:01:00"
+    id: start
+
+  # QUÁ TẢI
+  - platform: numeric_state
+    entity_id: !input power_sensor
+    above: !input overload_power
+    for:
+      minutes: !input overload_time
+    id: overload
 
 action:
   - variables:
@@ -106,24 +115,21 @@ action:
   - variables:
       run_minutes: >
         {{ (as_timestamp(now()) - as_timestamp(start_time)) / 60 }}
-      current_power: >
-        {{ states(power_entity) | float(0) }}
 
   - choose:
 
-      # === QUÁ TẢI / KẸT ===
+      # ==== QUÁ TẢI ====
       - conditions:
-          - condition: template
-            value_template: "{{ current_power >= (states(power_entity) | float(0)) and current_power >=  !input overload_power }}"
+          - condition: trigger
+            id: overload
         sequence:
           - service: !input notify_service
             data:
               title: "⚠️ {{ name }}"
               message: >
                 {{ name }} có dấu hiệu quá tải hoặc kẹt.
-                Công suất cao bất thường.
 
-      # === GIẶT XONG ===
+      # ==== CHẠY XONG ====
       - conditions:
           - condition: template
             value_template: "{{ run_minutes >= min_time }}"
@@ -135,7 +141,7 @@ action:
                 {{ name }} đã chạy xong.
                 Thời gian: {{ run_minutes | round(0) }} phút.
 
-      # === DỪNG SỚM / LỖI ===
+      # ==== DỪNG SỚM / LỖI ====
       - conditions:
           - condition: template
             value_template: "{{ run_minutes < min_time }}"
@@ -145,4 +151,3 @@ action:
               title: "❌ {{ name }}"
               message: >
                 {{ name }} dừng bất thường sau {{ run_minutes | round(0) }} phút.
-                Có thể lỗi hoặc mất nước.
