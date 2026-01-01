@@ -6,13 +6,13 @@ blueprint:
 
   input:
     siren_switch:
-      name: Công tắc kích hoạt còi
+      name: ● Công tắc kích hoạt còi
       selector:
         entity:
           domain: switch
 
     sound_option:
-      name: Âm thanh
+      name: Chọn âm thanh
       selector:
         select:
           options:
@@ -45,19 +45,19 @@ blueprint:
             - Thấp
 
     sound_entity:
-      name: Thực thể chọn âm thanh
+      name: ● Thực thể âm thanh
       selector:
         entity:
           domain: select
 
     volume_entity:
-      name: Thực thể âm lượng
+      name: ● Thực thể âm lượng
       selector:
         entity:
           domain: select
 
     duration:
-      name: Thời lượng (giây)
+      name: ● Thời lượng (giây)
       default: 5
       selector:
         number:
