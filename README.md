@@ -27,5 +27,7 @@ Blueprint Home Assistant để giám sát:
 1. Vào Home Assistant  
 2. Cài đặt → Tự động hóa → Blueprints  
 3. Chọn **Import Blueprint**
-4. Dán link: https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/automation/smart_washer_dryer_monitor.yaml
+4. Dán link:
+   - **Smart Washing / Dryer Monitor**: https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/automation/smart_washer_dryer_monitor.yaml
+   - **siren_play.yaml**:  https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/automation/siren_play.yaml
 
