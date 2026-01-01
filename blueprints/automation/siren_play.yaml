@@ -2,7 +2,6 @@ blueprint:
   name: Siren – Phát âm thanh có thời lượng
   description: >
     Kích hoạt còi ESPHome với lựa chọn âm thanh, âm lượng và thời lượng.
-    Tương thích với cấu hình siren BK7231M của Nguyenho.
   domain: automation
 
   input:
@@ -12,27 +11,59 @@ blueprint:
         entity:
           domain: switch
 
-    sound_select:
-      name: Chọn âm thanh
+    sound_option:
+      name: Âm thanh
       selector:
-        entity:
-          domain: select
+        select:
+          options:
+            - Doorbell
+            - Fur Elise
+            - Big Ben
+            - Ring Ring
+            - Lone Ranger
+            - Turkish March
+            - High Pitched
+            - Red Alert
+            - Crickets
+            - Beep
+            - Dog Bark
+            - Police Siren
+            - Grandfather Clock
+            - Phone Ring
+            - Fire Truck
+            - Clock Chime
+            - Alarm Clock
+            - School Bell
 
-    volume_select:
+    volume_option:
       name: Âm lượng
       selector:
+        select:
+          options:
+            - Cao
+            - Trung bình
+            - Thấp
+
+    sound_entity:
+      name: Thực thể chọn âm thanh
+      selector:
         entity:
           domain: select
 
-    duration_number:
+    volume_entity:
+      name: Thực thể âm lượng
+      selector:
+        entity:
+          domain: select
+
+    duration:
       name: Thời lượng (giây)
-      description: 5 = dùng thời lượng mặc định trên thiết bị
-      default: 10
+      default: 5
       selector:
         number:
           min: 0
           max: 180
-          step: 5
+          step: 1
           unit_of_measurement: s
 
     trigger_event:
@@ -44,33 +75,26 @@ mode: restart
 
 trigger: !input trigger_event
 
-variables:
-  duration: !input duration_number
-
 action:
   - service: select.select_option
     target:
-      entity_id: !input sound_select
+      entity_id: !input sound_entity
     data:
-      option: "{{ states(!input sound_select) }}"
+      option: !input sound_option
 
   - service: select.select_option
     target:
-      entity_id: !input volume_select
+      entity_id: !input volume_entity
     data:
-      option: "{{ states(!input volume_select) }}"
+      option: !input volume_option
 
   - service: switch.turn_on
     target:
       entity_id: !input siren_switch
 
-  - choose:
-      - conditions:
-          - condition: template
-            value_template: "{{ duration | int > 0 }}"
-        sequence:
-          - delay:
-              seconds: "{{ duration }}"
-          - service: switch.turn_off
-            target:
-              entity_id: !input siren_switch
+  - delay:
+      seconds: !input duration
+
+  - service: switch.turn_off
+    target:
+      entity_id: !input siren_switch
