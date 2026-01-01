@@ -1,11 +1,31 @@
-✅ TÍNH NĂNG ĐÃ CÓ
-✔ Không báo sai khi standby < 3W
-✔ Chỉ báo khi đã từng chạy thật
-✔ Phân biệt:
-✅ Chạy xong bình thường
-❌ Dừng sớm → lỗi
-⚠️ Quá tải / kẹt
-✔ ⏱ Kiểm tra chạy tối thiểu (vd 60 phút)
-✔ 🔁 TỰ RESET LỖI khi máy chạy lại
-✔ Dùng lại cho nhiều thiết bị
-✔ Không cần cloud – chạy 100% local
+# Smart Washing / Dryer Monitor Blueprint
+
+Blueprint Home Assistant để giám sát:
+- 🧺 Máy giặt
+- 🔥 Máy sấy
+- 🍽 Máy rửa bát
+
+## Tính năng
+- ✅ Phát hiện chạy xong (không báo sai khi standby)
+- ❌ Phát hiện dừng sớm / lỗi
+- ⚠️ Phát hiện quá tải / kẹt
+- ⏱ Kiểm tra thời gian chạy tối thiểu
+- 🔁 Tự reset lỗi khi chạy lại
+- 🌐 Chạy 100% local – không cloud
+
+---
+
+## Yêu cầu
+- Home Assistant 2023.5+
+- Có sensor công suất (W)
+
+---
+
+## Cài đặt (2 cách)
+
+### Cách 1 – Import bằng link (Khuyên dùng)
+1. Vào Home Assistant  
+2. Cài đặt → Tự động hóa → Blueprints  
+3. Chọn **Import Blueprint**
+4. Dán link:
+
