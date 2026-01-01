@@ -1,0 +1,76 @@
+blueprint:
+  name: Siren – Phát âm thanh có thời lượng
+  description: >
+    Kích hoạt còi ESPHome với lựa chọn âm thanh, âm lượng và thời lượng.
+    Tương thích với cấu hình siren BK7231M của Nguyenho.
+  domain: automation
+
+  input:
+    siren_switch:
+      name: Công tắc kích hoạt còi
+      selector:
+        entity:
+          domain: switch
+
+    sound_select:
+      name: Chọn âm thanh
+      selector:
+        entity:
+          domain: select
+
+    volume_select:
+      name: Âm lượng
+      selector:
+        entity:
+          domain: select
+
+    duration_number:
+      name: Thời lượng (giây)
+      description: 5 = dùng thời lượng mặc định trên thiết bị
+      default: 10
+      selector:
+        number:
+          min: 0
+          max: 180
+          step: 5
+          unit_of_measurement: s
+
+    trigger_event:
+      name: Điều kiện kích hoạt
+      selector:
+        trigger:
+
+mode: restart
+
+trigger: !input trigger_event
+
+variables:
+  duration: !input duration_number
+
+action:
+  - service: select.select_option
+    target:
+      entity_id: !input sound_select
+    data:
+      option: "{{ states(!input sound_select) }}"
+
+  - service: select.select_option
+    target:
+      entity_id: !input volume_select
+    data:
+      option: "{{ states(!input volume_select) }}"
+
+  - service: switch.turn_on
+    target:
+      entity_id: !input siren_switch
+
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ duration | int > 0 }}"
+        sequence:
+          - delay:
+              seconds: "{{ duration }}"
+          - service: switch.turn_off
+            target:
+              entity_id: !input siren_switch
