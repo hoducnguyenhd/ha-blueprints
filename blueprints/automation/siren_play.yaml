@@ -20,19 +20,21 @@ blueprint:
 
     duration_number:
       name: Thực thể Thời lượng
-      description: number.alarm_duration (đơn vị giây)
+      description: Chọn thực thể Thời lượng của thiết bị Siren
       selector:
         entity:
           domain: number
 
     sound_entity:
       name: Thực thể Âm thanh
+      description: Chọn thực thể Âm thanh của thiết bị Siren
       selector:
         entity:
           domain: select
 
     volume_entity:
       name: Thực thể Âm lượng
+      description: Chọn thực thể Âm lượng của thiết bị Siren
       selector:
         entity:
           domain: select
@@ -77,7 +79,7 @@ blueprint:
         number:
           min: 0
           max: 300
-          step: 1
+          step: 5
           unit_of_measurement: s
 
 mode: restart
