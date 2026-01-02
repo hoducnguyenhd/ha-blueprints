@@ -19,20 +19,20 @@ blueprint:
           domain: switch
 
     duration_number:
-      name: "Thực thể: Thời lượng"
+      name: Thực thể Thời lượng
       description: number.alarm_duration (đơn vị giây)
       selector:
         entity:
           domain: number
 
     sound_entity:
-      name: "Thực thể: Âm thanh"
+      name: Thực thể Âm thanh
       selector:
         entity:
           domain: select
 
     volume_entity:
-      name: "Thực thể: Âm lượng"
+      name: Thực thể Âm lượng
       selector:
         entity:
           domain: select
