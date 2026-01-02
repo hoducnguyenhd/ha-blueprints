@@ -1,29 +1,44 @@
 blueprint:
-  name: Siren – Phát âm thanh có thời lượng
+  name: Siren ESPHome – Phát âm thanh có thời lượng
   description: >
-    Kích hoạt còi ESPHome với lựa chọn âm thanh, âm lượng và thời lượng.
+    Kích hoạt còi ESPHome Siren với lựa chọn âm thanh,
+    âm lượng và thời lượng.
   domain: automation
 
   input:
+    trigger_event:
+      name: Điều kiện kích hoạt
+      selector:
+        trigger:
+
     siren_switch:
       name: Công tắc kích hoạt còi
+      description: Kích hoạt
       selector:
         entity:
           domain: switch
+
+    duration_number:
+      name: Thực thể: Thời lượng
+      description: number.alarm_duration (đơn vị giây)
+      selector:
+        entity:
+          domain: number
+
     sound_entity:
-      name: Thực thể âm thanh
+      name: Thực thể: Âm thanh
       selector:
         entity:
           domain: select
 
     volume_entity:
-      name: Thực thể âm lượng
+      name: Thực thể: Âm lượng
       selector:
         entity:
           domain: select
-          
+
     sound_option:
-      name: Chọn âm thanh
+      name: Chọn Âm thanh
       selector:
         select:
           options:
@@ -61,39 +76,37 @@ blueprint:
       selector:
         number:
           min: 0
-          max: 180
+          max: 300
           step: 1
           unit_of_measurement: s
-
-    trigger_event:
-      name: Điều kiện kích hoạt
-      selector:
-        trigger:
 
 mode: restart
 
 trigger: !input trigger_event
 
 action:
+  # 1️⃣ Chọn âm thanh
   - service: select.select_option
     target:
       entity_id: !input sound_entity
     data:
       option: !input sound_option
 
+  # 2️⃣ Chọn âm lượng
   - service: select.select_option
     target:
       entity_id: !input volume_entity
     data:
       option: !input volume_option
 
-  - service: switch.turn_on
+  # 3️⃣ Ghi thời lượng vào ESPHome
+  - service: number.set_value
     target:
-      entity_id: !input siren_switch
+      entity_id: !input duration_number
+    data:
+      value: !input duration
 
-  - delay:
-      seconds: !input duration
-
-  - service: switch.turn_off
+  # 4️⃣ Kích hoạt còi (ESPHome tự tắt theo thời lượng)
+  - service: switch.turn_on
     target:
       entity_id: !input siren_switch
