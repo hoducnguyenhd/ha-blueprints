@@ -1,5 +1,5 @@
 blueprint:
-  name: Siren ESPHome – Phát âm thanh có thời lượng
+  name: Siren ESPHome – Phát âm thanh cảnh báo , báo động
   description: >
     Kích hoạt còi ESPHome Siren với lựa chọn âm thanh,
     âm lượng và thời lượng.
