@@ -1,25 +1,28 @@
 blueprint:
-  name: ESPHome Speaker – Multi Sound
+  name: ESPHome Speaker – Embedded Sounds (Dropdown)
   description: >
-    Phát nhiều âm thanh (GitHub raw URL) cho ESPHome Speaker.
+    Phát âm thanh cho ESPHome Speaker.
+    Chọn âm thanh bằng dropdown.
+    URL GitHub raw được tích hợp sẵn.
+    Không cần helper.
   domain: automation
 
   input:
     trigger_entity:
       name: Trigger
-      description: Cảm biến / nút / trigger bất kỳ
+      description: Cảm biến / nút / automation / entity bất kỳ
       selector:
         entity: {}
 
     speaker:
-      name: Speaker (media_player)
+      name: Speaker
       selector:
         entity:
           domain: media_player
 
     volume:
       name: Volume
-      default: 1
+      default: 0.7
       selector:
         number:
           min: 0
@@ -27,27 +30,26 @@ blueprint:
           step: 0.05
           mode: slider
 
-    sound_select:
-      name: Chọn âm thanh
+    sound_name:
+      name: Sound (dropdown)
+      description: Chọn âm thanh
+      default: Bell
       selector:
-        entity:
-          domain: input_select
-
-    sound_slider:
-      name: Âm lượng
-      selector:
-        entity:
-          domain: input_number
+        select:
+          options:
+            - Bell
+            - Chime
+            - Alarm
+            - Notify
 
     auto_stop:
-      name: Tự dùng sau (s)
+      name: Auto stop (seconds)
       default: 5
       selector:
         number:
           min: 0
           max: 60
-          step: 2
-          unit_of_measurement: s
+          step: 1
 
 mode: restart
 
@@ -56,24 +58,14 @@ trigger:
     entity_id: !input trigger_entity
 
 variables:
-  sound_url_map:
-    Bell: "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/bell.mp3"
-    Chime: "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/chime.mp3"
-    Alarm: "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/alarm.mp3"
-    Notify: "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/notify.mp3"
-
-  slider_url_map:
-    "1": "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/bell.mp3"
-    "2": "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/chime.mp3"
-    "3": "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/alarm.mp3"
+  sound_map:
+    Bell: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/bell.mp3"
+    Chime: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/chime.mp3"
+    Alarm: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/alarm.mp3"
+    Notify: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/notify.mp3"
 
   selected_sound: >
-    {% set s = states(!input sound_select) %}
-    {% if s in sound_url_map %}
-      {{ sound_url_map[s] }}
-    {% else %}
-      {{ slider_url_map[states(!input sound_slider)|int|string] }}
-    {% endif %}
+    {{ sound_map[!input sound_name] }}
 
 action:
   - service: media_player.volume_set
