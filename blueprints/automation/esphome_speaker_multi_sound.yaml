@@ -7,10 +7,10 @@ blueprint:
   domain: automation
 
   input:
-    trigger_entity:
-      name: Trigger
+    trigger_event:
+      name: Điều kiện kích hoạt
       selector:
-        entity: {}
+        trigger
 
     speaker:
       name: Speaker
