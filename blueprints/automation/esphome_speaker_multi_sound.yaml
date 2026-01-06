@@ -59,10 +59,10 @@ trigger:
 
 variables:
   sound_map:
-    Bell: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/bell.mp3"
-    Chime: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/chime.mp3"
+    Bell: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
+    Chime: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
     Alarm: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
-    Notify: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/notify.mp3"
+    Notify: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
 
   selected_sound: >
     {{ sound_map[!input sound_name] }}
