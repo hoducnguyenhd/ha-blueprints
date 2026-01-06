@@ -1,10 +1,7 @@
 blueprint:
-  name: ESPHome Speaker – Embedded Sounds (Dropdown FIXED)
+  name: ESPHome Speaker – Embedded Sounds
   description: >
     Phát âm thanh cho ESPHome Speaker.
-    Dropdown chọn âm thanh.
-    URL GitHub raw tích hợp sẵn.
-    Không helper.
   domain: automation
 
   input:
