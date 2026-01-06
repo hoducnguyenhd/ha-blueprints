@@ -1,0 +1,102 @@
+blueprint:
+  name: ESPHome Speaker – Multi Sound
+  description: >
+    Phát nhiều âm thanh (GitHub raw URL) cho ESPHome Speaker.
+  domain: automation
+
+  input:
+    trigger_entity:
+      name: Trigger
+      description: Cảm biến / nút / trigger bất kỳ
+      selector:
+        entity: {}
+
+    speaker:
+      name: Speaker (media_player)
+      selector:
+        entity:
+          domain: media_player
+
+    volume:
+      name: Volume
+      default: 1
+      selector:
+        number:
+          min: 0
+          max: 1
+          step: 0.05
+          mode: slider
+
+    sound_select:
+      name: Chọn âm thanh
+      selector:
+        entity:
+          domain: input_select
+
+    sound_slider:
+      name: Âm lượng
+      selector:
+        entity:
+          domain: input_number
+
+    auto_stop:
+      name: Tự dùng sau (s)
+      default: 5
+      selector:
+        number:
+          min: 0
+          max: 60
+          step: 2
+          unit_of_measurement: s
+
+mode: restart
+
+trigger:
+  - platform: state
+    entity_id: !input trigger_entity
+
+variables:
+  sound_url_map:
+    Bell: "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/bell.mp3"
+    Chime: "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/chime.mp3"
+    Alarm: "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/alarm.mp3"
+    Notify: "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/notify.mp3"
+
+  slider_url_map:
+    "1": "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/bell.mp3"
+    "2": "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/chime.mp3"
+    "3": "https://raw.githubusercontent.com/USERNAME/REPO/main/sounds/alarm.mp3"
+
+  selected_sound: >
+    {% set s = states(!input sound_select) %}
+    {% if s in sound_url_map %}
+      {{ sound_url_map[s] }}
+    {% else %}
+      {{ slider_url_map[states(!input sound_slider)|int|string] }}
+    {% endif %}
+
+action:
+  - service: media_player.volume_set
+    target:
+      entity_id: !input speaker
+    data:
+      volume_level: !input volume
+
+  - service: media_player.play_media
+    target:
+      entity_id: !input speaker
+    data:
+      media_content_id: "{{ selected_sound }}"
+      media_content_type: music
+
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            value_template: !input auto_stop
+            above: 0
+        sequence:
+          - delay:
+              seconds: !input auto_stop
+          - service: media_player.stop
+            target:
+              entity_id: !input speaker
