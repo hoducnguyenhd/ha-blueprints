@@ -1,7 +1,7 @@
 blueprint:
   name: ESPHome Speaker
   description: >
-    ESPHome Speaker
+    ESPHome Speaker – Phát âm thanh thông báo, cảnh báo
   domain: automation
 
   input:
@@ -18,7 +18,7 @@ blueprint:
 
     volume:
       name: Volume
-      default: 0.7
+      default: 1
       selector:
         number:
           min: 0
@@ -27,7 +27,7 @@ blueprint:
           mode: slider
 
     sound_name:
-      name: Sound (dropdown)
+      name: Chọn âm báo
       default: Bell
       selector:
         select:
@@ -38,7 +38,7 @@ blueprint:
             - Notify
 
     auto_stop:
-      name: Auto stop (seconds)
+      name: Tự dừng âm thanh sau (s)
       default: 5
       selector:
         number:
@@ -48,7 +48,8 @@ blueprint:
 
 mode: restart
 
-# ⛔ KHÔNG CÓ block trigger ở đây
+# ⭐ DÒNG QUAN TRỌNG NHẤT
+trigger: !input trigger_event
 
 action:
   - variables:
