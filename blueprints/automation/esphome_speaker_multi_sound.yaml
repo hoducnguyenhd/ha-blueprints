@@ -61,7 +61,7 @@ variables:
   sound_map:
     Bell: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/bell.mp3"
     Chime: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/chime.mp3"
-    Alarm: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/alarm.mp3"
+    Alarm: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
     Notify: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/notify.mp3"
 
   selected_sound: >
