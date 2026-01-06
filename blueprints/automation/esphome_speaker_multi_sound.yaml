@@ -1,16 +1,15 @@
 blueprint:
-  name: ESPHome Speaker – Embedded Sounds (Dropdown)
+  name: ESPHome Speaker – Embedded Sounds (Dropdown FIXED)
   description: >
     Phát âm thanh cho ESPHome Speaker.
-    Chọn âm thanh bằng dropdown.
-    URL GitHub raw được tích hợp sẵn.
-    Không cần helper.
+    Dropdown chọn âm thanh.
+    URL GitHub raw tích hợp sẵn.
+    Không helper.
   domain: automation
 
   input:
     trigger_entity:
       name: Trigger
-      description: Cảm biến / nút / automation / entity bất kỳ
       selector:
         entity: {}
 
@@ -32,7 +31,6 @@ blueprint:
 
     sound_name:
       name: Sound (dropdown)
-      description: Chọn âm thanh
       default: Bell
       selector:
         select:
@@ -58,14 +56,16 @@ trigger:
     entity_id: !input trigger_entity
 
 variables:
+  selected_sound_name: !input sound_name
+
   sound_map:
-    Bell: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
-    Chime: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
+    Bell: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/bell.mp3"
+    Chime: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/chime.mp3"
     Alarm: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
-    Notify: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
+    Notify: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/notify.mp3"
 
   selected_sound: >
-    {{ sound_map[!input sound_name] }}
+    {{ sound_map[selected_sound_name] }}
 
 action:
   - service: media_player.volume_set
