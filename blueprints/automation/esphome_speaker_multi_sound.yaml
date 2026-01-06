@@ -1,7 +1,9 @@
 blueprint:
-  name: ESPHome Speaker – Embedded Sounds
+  name: ESPHome Speaker – Embedded Sounds (Dropdown FINAL)
   description: >
-    Phát âm thanh cho ESPHome Speaker.
+    ESPHome Speaker – dropdown chọn âm thanh.
+    URL GitHub raw tích hợp sẵn.
+    Không helper – không lỗi.
   domain: automation
 
   input:
@@ -52,19 +54,19 @@ trigger:
   - platform: state
     entity_id: !input trigger_entity
 
-variables:
-  selected_sound_name: !input sound_name
-
-  sound_map:
-    Bell: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/bell.mp3"
-    Chime: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/chime.mp3"
-    Alarm: "https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav"
-    Notify: "https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/notify.mp3"
-
-  selected_sound: >
-    {{ sound_map[selected_sound_name] }}
-
 action:
+  - variables:
+      selected_sound: >
+        {% if sound_name == 'Bell' %}
+          https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/bell.mp3
+        {% elif sound_name == 'Chime' %}
+          https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/chime.mp3
+        {% elif sound_name == 'Alarm' %}
+          https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/sounds/alarm.wav
+        {% elif sound_name == 'Notify' %}
+          https://raw.githubusercontent.com/nguyenho/speaker-sounds/main/notify.mp3
+        {% endif %}
+
   - service: media_player.volume_set
     target:
       entity_id: !input speaker
@@ -78,14 +80,9 @@ action:
       media_content_id: "{{ selected_sound }}"
       media_content_type: music
 
-  - choose:
-      - conditions:
-          - condition: numeric_state
-            value_template: !input auto_stop
-            above: 0
-        sequence:
-          - delay:
-              seconds: !input auto_stop
-          - service: media_player.stop
-            target:
-              entity_id: !input speaker
+  - delay:
+      seconds: !input auto_stop
+
+  - service: media_player.stop
+    target:
+      entity_id: !input speaker
