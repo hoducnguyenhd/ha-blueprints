@@ -10,7 +10,7 @@ blueprint:
     trigger_event:
       name: Điều kiện kích hoạt
       selector:
-        trigger
+        trigger:
 
     speaker:
       name: Speaker
