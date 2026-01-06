@@ -1,9 +1,7 @@
 blueprint:
-  name: ESPHome Speaker – Embedded Sounds (Dropdown FINAL)
+  name: ESPHome Speaker
   description: >
-    ESPHome Speaker – dropdown chọn âm thanh.
-    URL GitHub raw tích hợp sẵn.
-    Không helper – không lỗi.
+    ESPHome Speaker
   domain: automation
 
   input:
@@ -50,9 +48,7 @@ blueprint:
 
 mode: restart
 
-trigger:
-  - platform: state
-    entity_id: !input trigger_entity
+# ⛔ KHÔNG CÓ block trigger ở đây
 
 action:
   - variables:
