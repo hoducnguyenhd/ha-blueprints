@@ -1,7 +1,7 @@
 blueprint:
   name: Smart Washer / Dryer Monitor
   description: >
-    Phát hiện giặt/sấy xong, dừng sớm (lỗi), quá tải.
+    Phát hiện máy giặt/sấy chạy xong, dừng sớm (lỗi), quá tải.
   domain: automation
 
   input:
@@ -17,11 +17,12 @@ blueprint:
       selector:
         text:
 
-    notify_service:
-      name: Notify service
-      default: notify.notify
+    notify_targets:
+      name: Danh sách người nhận thông báo
+      description: >
+        Nhập danh sách notify service (VD: notify.mobile_app_nguyen)
       selector:
-        text:
+        object:
 
     running_power:
       name: Ngưỡng xác định đang chạy (W)
@@ -80,14 +81,14 @@ blueprint:
 mode: restart
 
 trigger:
-  # BẮT ĐẦU CHẠY
+  # ===== BẮT ĐẦU CHẠY =====
   - platform: numeric_state
     entity_id: !input power_sensor
     above: !input running_power
     for: "00:01:00"
     id: start
 
-  # QUÁ TẢI
+  # ===== QUÁ TẢI =====
   - platform: numeric_state
     entity_id: !input power_sensor
     above: !input overload_power
@@ -101,7 +102,9 @@ action:
       power_entity: !input power_sensor
       start_time: "{{ now() }}"
       min_time: !input min_run_time
+      targets: !input notify_targets
 
+  # ===== ĐỢI KẾT THÚC =====
   - wait_for_trigger:
       - platform: numeric_state
         entity_id: !input power_sensor
@@ -117,36 +120,39 @@ action:
 
   - choose:
 
-      # ==== QUÁ TẢI ====
+      # ===== QUÁ TẢI =====
       - conditions:
           - condition: trigger
             id: overload
         sequence:
-          - service: !input notify_service
+          - service: script.notify_dynamic
             data:
+              targets: "{{ targets }}"
               title: "⚠️ {{ name }}"
               message: >
                 {{ name }} có dấu hiệu quá tải hoặc kẹt.
 
-      # ==== CHẠY XONG ====
+      # ===== CHẠY XONG =====
       - conditions:
           - condition: template
             value_template: "{{ run_minutes >= min_time }}"
         sequence:
-          - service: !input notify_service
+          - service: script.notify_dynamic
             data:
+              targets: "{{ targets }}"
               title: "🧺 {{ name }}"
               message: >
                 {{ name }} đã chạy xong.
                 Thời gian: {{ run_minutes | round(0) }} phút.
 
-      # ==== DỪNG SỚM / LỖI ====
+      # ===== DỪNG SỚM / LỖI =====
       - conditions:
           - condition: template
             value_template: "{{ run_minutes < min_time }}"
         sequence:
-          - service: !input notify_service
+          - service: script.notify_dynamic
             data:
+              targets: "{{ targets }}"
               title: "❌ {{ name }}"
               message: >
                 {{ name }} dừng bất thường sau {{ run_minutes | round(0) }} phút.
