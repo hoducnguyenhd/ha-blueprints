@@ -48,7 +48,7 @@ blueprint:
       selector:
         number:
           min: 1
-          max: 10
+          max: 30
           step: 1
 
     min_run_time:
@@ -56,7 +56,7 @@ blueprint:
       default: 60
       selector:
         number:
-          min: 1
+          min: 10
           max: 240
           step: 2
 
