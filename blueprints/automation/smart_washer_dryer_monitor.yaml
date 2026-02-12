@@ -19,14 +19,12 @@ blueprint:
 
     notify_targets:
       name: Danh sách người nhận thông báo
-      description: >
-        Nhập danh sách notify service (VD: notify.mobile_app_nguyen)
       selector:
         object:
 
     running_power:
       name: Ngưỡng xác định đang chạy (W)
-      default: 10
+      default: 8
       selector:
         number:
           min: 5
@@ -44,7 +42,7 @@ blueprint:
 
     finish_time:
       name: Thời gian công suất thấp xác nhận dừng (phút)
-      default: 3
+      default: 10
       selector:
         number:
           min: 1
@@ -53,10 +51,10 @@ blueprint:
 
     min_run_time:
       name: Thời gian chạy tối thiểu (phút)
-      default: 60
+      default: 10
       selector:
         number:
-          min: 10
+          min: 8
           max: 240
           step: 2
 
@@ -115,8 +113,21 @@ action:
       hours: 6
 
   - variables:
-      run_minutes: >
-        {{ (as_timestamp(now()) - as_timestamp(start_time)) / 60 }}
+      run_seconds: >
+        {{ (as_timestamp(now()) - as_timestamp(start_time)) | int }}
+
+      run_time: >
+        {% set s = run_seconds %}
+        {% set h = (s // 3600) %}
+        {% set m = (s % 3600) // 60 %}
+        {% set sec = (s % 60) %}
+        {% if h > 0 %}
+          {{ h }}h{{ m }}p{{ sec }}s
+        {% elif m > 0 %}
+          {{ m }}p{{ sec }}s
+        {% else %}
+          {{ sec }}s
+        {% endif %}
 
   - choose:
 
@@ -128,31 +139,33 @@ action:
           - service: script.notify_dynamic
             data:
               targets: "{{ targets }}"
-              title: "⚠️ {{ name }}"
+              title: "🚨 {{ name }}"
               message: >
-                {{ name }} có dấu hiệu quá tải hoặc kẹt.
+                Phát hiện quá tải hoặc kẹt!
+                Thời gian đã chạy: {{ run_time }}
 
       # ===== CHẠY XONG =====
       - conditions:
           - condition: template
-            value_template: "{{ run_minutes >= min_time }}"
+            value_template: "{{ (run_seconds / 60) >= min_time }}"
         sequence:
           - service: script.notify_dynamic
             data:
               targets: "{{ targets }}"
               title: "🧺 {{ name }}"
               message: >
-                {{ name }} đã chạy xong.
-                Thời gian: {{ run_minutes | round(0) }} phút.
+                Đã chạy xong.
+                Thời gian đã chạy: {{ run_time }}
 
       # ===== DỪNG SỚM / LỖI =====
       - conditions:
           - condition: template
-            value_template: "{{ run_minutes < min_time }}"
+            value_template: "{{ (run_seconds / 60) < min_time }}"
         sequence:
           - service: script.notify_dynamic
             data:
               targets: "{{ targets }}"
               title: "❌ {{ name }}"
               message: >
-                {{ name }} dừng bất thường sau {{ run_minutes | round(0) }} phút.
+                Dừng bất thường!
+                Thời gian đã chạy: {{ run_time }}
