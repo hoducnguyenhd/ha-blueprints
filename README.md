@@ -29,5 +29,5 @@ Blueprint Home Assistant để giám sát:
 3. Chọn **Import Blueprint**
 4. Dán link:
    - **Smart Washing / Dryer Monitor**: https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/automation/smart_washer_dryer_monitor.yaml
-   - **siren_play.yaml**:  https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/automation/siren_play.yaml
-
+   - **siren_play**:  https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/automation/siren_play.yaml
+   - **RFID-Tag-name**:  https://raw.githubusercontent.com/hoducnguyenhd/ha-blueprints/main/blueprints/automation/RFID-TAG-NAME.yaml
