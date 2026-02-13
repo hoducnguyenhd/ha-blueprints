@@ -1,0 +1,33 @@
+blueprint:
+  name: RFID - Gửi tên tag về ESPHome
+  description: >
+    Khi quét thẻ RFID (tag_scanned),
+    gửi trường name của tag về ESPHome text_sensor
+    thông qua ESPHome API action.
+  domain: automation
+
+  input:
+    esphome_action:
+      name: ESPHome action service
+      description: >
+        Nhập chuỗi này vào ô bên cạnh:
+        esphome.rfid_hub_xxxxxx_tag_name.
+        Với xxxxxx là 6 kí tự cuối địa chỉ MAC cảu thiết bị
+        VD: esphome.rfid_hub_2ba333_tag_name
+      selector:
+        text:
+
+mode: queued
+
+trigger:
+  - platform: event
+    event_type: tag_scanned
+
+condition:
+  - condition: template
+    value_template: "{{ trigger.event.data.name is defined }}"
+
+action:
+  - service_template: !input esphome_action
+    data:
+      tag_name: "{{ trigger.event.data.name }}"
